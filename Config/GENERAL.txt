@@ -1,25 +1,4 @@
 # ============================================================
-# 科学插件（完整集成版）
-# ============================================================
-CONFIG_PACKAGE_luci-app-homeproxy=y
-CONFIG_PACKAGE_luci-app-momo=y
-CONFIG_PACKAGE_luci-app-nikki=y
-CONFIG_PACKAGE_sing-box=y
-CONFIG_PACKAGE_luci-app-openlist2=y
-# ============================================================
-# 常用 LuCI 插件
-# ============================================================
-CONFIG_PACKAGE_luci-app-autoreboot=y
-CONFIG_PACKAGE_luci-app-gecoosac=y
-CONFIG_PACKAGE_luci-app-netspeedtest=y
-CONFIG_PACKAGE_luci-app-partexp=y
-CONFIG_PACKAGE_luci-app-samba4=y
-CONFIG_PACKAGE_luci-app-tailscale=y
-CONFIG_PACKAGE_luci-app-upnp=y
-CONFIG_PACKAGE_luci-app-wolplus=y
-CONFIG_PACKAGE_luci-app-wol=n
-
-# ============================================================
 # 系统/编译参数
 # ============================================================
 CONFIG_CCACHE=y
@@ -78,10 +57,6 @@ CONFIG_PACKAGE_kmod-usb-storage=y
 CONFIG_PACKAGE_kmod-usb-storage-extras=y
 CONFIG_PACKAGE_kmod-usb-storage-uas=y
 
-# ============================================================
-# VPN / WireGuard / 网络组件
-# ============================================================
-CONFIG_PACKAGE_kmod-wireguard=y
 
 # ============================================================
 # 常用基础组件
@@ -90,7 +65,6 @@ CONFIG_PACKAGE_autocore=y
 CONFIG_PACKAGE_automount=y
 CONFIG_PACKAGE_blkid=y
 CONFIG_PACKAGE_cfdisk=y
-CONFIG_PACKAGE_coremark=y
 CONFIG_PACKAGE_cpufreq=y
 CONFIG_PACKAGE_dmesg=y
 CONFIG_PACKAGE_fdisk=y
@@ -160,22 +134,7 @@ CONFIG_PACKAGE_kmod-macvlan=y
 CONFIG_NSS_FIRMWARE_VERSION_11_4=n
 CONFIG_NSS_FIRMWARE_VERSION_12_5=y
 
-# ============================================================
-# 可选插件（按需）
-# ============================================================
-# CONFIG_PACKAGE_luci-app-qbittorrent=y
-CONFIG_PACKAGE_luci-app-adguardhome=y
-CONFIG_PACKAGE_luci-app-filemanager=y
-CONFIG_PACKAGE_luci-app-caddy=y
-CONFIG_PACKAGE_luci-app-gost=y
-CONFIG_PACKAGE_luci-app-lucky=y
 
-# luci-app-package-manager（替代老的 luci-app-opkg）
-CONFIG_PACKAGE_luci-app-package-manager=y
-
-# luci-app-lucky + lucky 主程序
-CONFIG_PACKAGE_luci-app-lucky=y
-CONFIG_PACKAGE_lucky=y
 
 # luci-app-podman + 运行必需组件
 CONFIG_PACKAGE_luci-app-podman=y

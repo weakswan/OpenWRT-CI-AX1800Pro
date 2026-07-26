@@ -1,0 +1,224 @@
+# ============================================================
+# 科学插件（完整集成版）
+# ============================================================
+CONFIG_PACKAGE_luci-app-homeproxy=y
+CONFIG_PACKAGE_luci-app-momo=y
+CONFIG_PACKAGE_luci-app-nikki=y
+CONFIG_PACKAGE_sing-box=y
+CONFIG_PACKAGE_luci-app-openlist2=y
+# ============================================================
+# 常用 LuCI 插件
+# ============================================================
+CONFIG_PACKAGE_luci-app-autoreboot=y
+CONFIG_PACKAGE_luci-app-gecoosac=y
+CONFIG_PACKAGE_luci-app-netspeedtest=y
+CONFIG_PACKAGE_luci-app-partexp=y
+CONFIG_PACKAGE_luci-app-samba4=y
+CONFIG_PACKAGE_luci-app-tailscale=y
+CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_luci-app-wolplus=y
+CONFIG_PACKAGE_luci-app-wol=n
+
+# ============================================================
+# 系统/编译参数
+# ============================================================
+CONFIG_CCACHE=y
+CONFIG_DEVEL=y
+CONFIG_TARGET_MULTI_PROFILE=y
+CONFIG_TARGET_PER_DEVICE_ROOTFS=y
+CONFIG_TARGET_ROOTFS_INITRAMFS=n
+
+# ============================================================
+# 内核/kmod 驱动支持
+# ============================================================
+CONFIG_PACKAGE_kmod-dsa=y
+CONFIG_PACKAGE_kmod-fs-btrfs=y
+CONFIG_PACKAGE_kmod-fuse=y
+CONFIG_PACKAGE_kmod-inet-diag=y
+CONFIG_PACKAGE_kmod-mtd-rw=y
+CONFIG_PACKAGE_kmod-netlink-diag=y
+CONFIG_PACKAGE_kmod-nft-bridge=y
+CONFIG_PACKAGE_kmod-nft-core=y
+CONFIG_PACKAGE_kmod-nft-fib=y
+CONFIG_PACKAGE_kmod-nft-fullcone=y
+CONFIG_PACKAGE_kmod-nft-nat=y
+CONFIG_PACKAGE_kmod-nft-netdev=y
+CONFIG_PACKAGE_kmod-nft-offload=y
+CONFIG_PACKAGE_kmod-nft-queue=y
+CONFIG_PACKAGE_kmod-nft-socket=y
+CONFIG_PACKAGE_kmod-nft-tproxy=y
+CONFIG_PACKAGE_kmod-tun=y
+CONFIG_PACKAGE_kmod-sound-core=y
+
+# ============================================================
+# USB/网络存储/扩展接口
+# ============================================================
+CONFIG_PACKAGE_kmod-usb3=y
+CONFIG_PACKAGE_kmod-usb-audio=y
+CONFIG_PACKAGE_kmod-usb-core=y
+CONFIG_PACKAGE_kmod-usb-dwc3=y
+CONFIG_PACKAGE_kmod-usb-net=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-eem=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-mbim=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-subset=y
+CONFIG_PACKAGE_kmod-usb-net-huawei-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-ipheth=y
+CONFIG_PACKAGE_kmod-usb-net-qmi-wwan=y
+CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-fibocom=y
+CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-quectel=y
+CONFIG_PACKAGE_kmod-usb-net-rndis=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8150=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8152=y
+CONFIG_PACKAGE_kmod-usb-ohci=y
+CONFIG_PACKAGE_kmod-usb-uhci=y
+CONFIG_PACKAGE_kmod-usb-xhci=y
+CONFIG_PACKAGE_kmod-usb-storage=y
+CONFIG_PACKAGE_kmod-usb-storage-extras=y
+CONFIG_PACKAGE_kmod-usb-storage-uas=y
+
+# ============================================================
+# VPN / WireGuard / 网络组件
+# ============================================================
+CONFIG_PACKAGE_kmod-wireguard=y
+
+# ============================================================
+# 常用基础组件
+# ============================================================
+CONFIG_PACKAGE_autocore=y
+CONFIG_PACKAGE_automount=y
+CONFIG_PACKAGE_blkid=y
+CONFIG_PACKAGE_cfdisk=y
+CONFIG_PACKAGE_coremark=y
+CONFIG_PACKAGE_cpufreq=y
+CONFIG_PACKAGE_dmesg=y
+CONFIG_PACKAGE_fdisk=y
+CONFIG_PACKAGE_gdisk=y
+CONFIG_PACKAGE_htop=y
+CONFIG_PACKAGE_iperf3=y
+CONFIG_PACKAGE_ip-full=y
+CONFIG_PACKAGE_lsblk=y
+CONFIG_PACKAGE_mmc-utils=y
+CONFIG_PACKAGE_nand-utils=y
+CONFIG_PACKAGE_openssh-keygen=y
+CONFIG_PACKAGE_openssh-sftp-server=y
+CONFIG_PACKAGE_openssl-util=y
+CONFIG_PACKAGE_sfdisk=y
+CONFIG_PACKAGE_sgdisk=y
+CONFIG_PACKAGE_usbutils=y
+CONFIG_PACKAGE_jq=y
+CONFIG_PACKAGE_tcping=y
+CONFIG_PACKAGE_coreutils=y
+CONFIG_PACKAGE_coreutils-base64=y
+CONFIG_PACKAGE_curl=y
+CONFIG_PACKAGE_zoneinfo-asia=y
+CONFIG_PACKAGE_bind-dig=y
+CONFIG_PACKAGE_ss=y
+CONFIG_PACKAGE_btop=y
+
+# ============================================================
+# 容器支持（Podman 完整栈）
+# ============================================================
+CONFIG_PACKAGE_luci-app-podman=y
+CONFIG_PACKAGE_podman=y
+CONFIG_PACKAGE_conmon=y
+CONFIG_PACKAGE_crun=y
+CONFIG_PACKAGE_catatonit=y
+CONFIG_PACKAGE_slirp4netns=y
+CONFIG_PACKAGE_fuse-overlayfs=y
+CONFIG_PACKAGE_uidmap=y
+CONFIG_PACKAGE_netavark=y
+CONFIG_PACKAGE_aardvark-dns=y
+CONFIG_PACKAGE_containers-storage=y
+CONFIG_PACKAGE_podman-compose=y
+
+# ============================================================
+# Podman内核支持项（容器/隔离）
+# ============================================================
+CONFIG_KERNEL_CGROUPS=y
+CONFIG_KERNEL_CGROUP_PIDS=y
+CONFIG_KERNEL_MEMCG=y
+CONFIG_KERNEL_NAMESPACES=y
+CONFIG_KERNEL_USER_NS=y
+CONFIG_KERNEL_SECCOMP=y
+CONFIG_KERNEL_SECCOMP_FILTER=y
+CONFIG_KERNEL_KEYS=y
+
+# Podman镜像与配置
+CONFIG_PACKAGE_skopeo=y
+CONFIG_PACKAGE_containers-common=y
+# Podman Rootless/Overlay 更优
+CONFIG_PACKAGE_fuse-overlayfs=y
+
+# Podman 网络内核
+CONFIG_PACKAGE_kmod-veth=y
+CONFIG_PACKAGE_kmod-macvlan=y
+# ============================================================
+# NSS/QCA 固件控制
+# ============================================================
+CONFIG_NSS_FIRMWARE_VERSION_11_4=n
+CONFIG_NSS_FIRMWARE_VERSION_12_5=y
+
+# ============================================================
+# 可选插件（按需）
+# ============================================================
+# CONFIG_PACKAGE_luci-app-qbittorrent=y
+CONFIG_PACKAGE_luci-app-adguardhome=y
+CONFIG_PACKAGE_luci-app-filemanager=y
+CONFIG_PACKAGE_luci-app-caddy=y
+CONFIG_PACKAGE_luci-app-gost=y
+CONFIG_PACKAGE_luci-app-lucky=y
+
+# luci-app-package-manager（替代老的 luci-app-opkg）
+CONFIG_PACKAGE_luci-app-package-manager=y
+
+# luci-app-lucky + lucky 主程序
+CONFIG_PACKAGE_luci-app-lucky=y
+CONFIG_PACKAGE_lucky=y
+
+# luci-app-podman + 运行必需组件
+CONFIG_PACKAGE_luci-app-podman=y
+CONFIG_PACKAGE_podman=y
+CONFIG_PACKAGE_conmon=y
+CONFIG_PACKAGE_crun=y      # 或 runc，二选一即可；podman 默认更偏好 crun
+CONFIG_PACKAGE_fuse-overlayfs=y
+CONFIG_PACKAGE_kmod-fuse=y
+# 可选的 btrfs 存储驱动支持（不是必须）
+CONFIG_PACKAGE_btrfs-progs=y
+CONFIG_PACKAGE_kmod-fs-btrfs=y
+
+##### USB/NCM/RNDIS 栈（OpenWrt 选项）#########################################
+# —— 内核：通用 USB 网卡 & 各协议内核模块 ——
+CONFIG_PACKAGE_kmod-usb-net=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
+CONFIG_PACKAGE_kmod-usb-net-rndis=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-huawei-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-mbim=y
+
+# —— LuCI 协议插件（NCM 必备 UI），以及拨号脚本（NCM 必需） ——
+CONFIG_PACKAGE_luci-proto-ncm=y
+CONFIG_PACKAGE_comgt-ncm=y
+
+# —— 可选：若打算用 MBIM 也建议带上（UI 插件与工具）——
+CONFIG_PACKAGE_luci-proto-mbim=y
+CONFIG_PACKAGE_umbim=y
+
+# —— 可选：若设备需要 QMI（高通系常见）——
+CONFIG_PACKAGE_luci-proto-qmi=y
+CONFIG_PACKAGE_uqmi=y
+
+# —— 设备模式切换 & USB 工具（很多 4G/5G 上网卡需要从“光驱模式”切换到网卡）——
+CONFIG_PACKAGE_usb-modeswitch=y
+CONFIG_PACKAGE_usbutils=y
+
+# —— 常见 USB 串口驱动（某些棒子需要 /dev/ttyUSB* 才能初始化/切网）——
+CONFIG_PACKAGE_kmod-usb-serial=y
+CONFIG_PACKAGE_kmod-usb-serial-wwan=y
+CONFIG_PACKAGE_kmod-usb-serial-option=y
+CONFIG_PACKAGE_kmod-usb-serial-cp210x=y
+CONFIG_PACKAGE_kmod-usb-serial-ch341=y
+CONFIG_PACKAGE_kmod-usb-serial-ftdi=y
+###############################################################################
+

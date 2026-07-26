@@ -1,0 +1,327 @@
+# 云编译公用核心
+name: WRT-CORE
+
+on:
+  workflow_call:
+    inputs:
+      WRT_CONFIG:   {required: true,  type: string}
+      WRT_THEME:    {required: true,  type: string}
+      WRT_NAME:     {required: true,  type: string}
+      WRT_SSID:     {required: true,  type: string}
+      WRT_WORD:     {required: true,  type: string}
+      WRT_IP:       {required: true,  type: string}
+      WRT_PW:       {required: true,  type: string}
+      WRT_REPO:     {required: true,  type: string}
+      WRT_BRANCH:   {required: true,  type: string}
+      WRT_SOURCE:   {required: true,  type: string}
+      WRT_PACKAGE:  {required: false, type: string}
+      WRT_TEST:     {required: false, type: string}
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  WRT_CONFIG:  ${{ inputs.WRT_CONFIG }}
+  WRT_THEME:   ${{ inputs.WRT_THEME }}
+  WRT_NAME:    ${{ inputs.WRT_NAME }}
+  WRT_SSID:    ${{ inputs.WRT_SSID }}
+  WRT_WORD:    ${{ inputs.WRT_WORD }}
+  WRT_IP:      ${{ inputs.WRT_IP }}
+  WRT_PW:      ${{ inputs.WRT_PW }}
+  WRT_REPO:    ${{ inputs.WRT_REPO }}
+  WRT_BRANCH:  ${{ inputs.WRT_BRANCH }}
+  WRT_SOURCE:  ${{ inputs.WRT_SOURCE }}
+  WRT_PACKAGE: ${{ inputs.WRT_PACKAGE }}
+  WRT_TEST:    ${{ inputs.WRT_TEST }}
+
+jobs:
+  core:
+    name: ${{ inputs.WRT_SOURCE }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Server Performance(检查服务器性能)
+        run: |
+          echo "警告⚠"
+          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+          echo -e "已知CPU型号（降序）：7763，8370C，8272CL，8171M，E5-2673 \n"
+          echo "--------------------------CPU信息--------------------------"
+          echo "CPU物理数量：$(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
+          echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+          echo "--------------------------内存信息--------------------------"
+          echo "已安装内存详细信息："
+          echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
+          echo "--------------------------硬盘信息--------------------------"
+          echo "硬盘数量：$(ls /dev/sd* 2>/dev/null | grep -v [1-9] | wc -l)" && df -hT
+
+      - name: Initialization Environment(安装依赖环境)
+        env: { DEBIAN_FRONTEND: noninteractive }
+        run: |
+          sudo -E apt -yqq purge firefox || true
+          sudo -E apt -yqq update
+          sudo -E apt -yqq full-upgrade
+          sudo -E apt -yqq autoremove --purge
+          sudo -E apt -yqq autoclean
+          sudo -E apt -yqq clean
+          sudo -E apt -yqq install dos2unix python3-netifaces libfuse-dev clang
+          sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          sudo -E systemctl daemon-reload
+          sudo -E timedatectl set-timezone "Asia/Shanghai"
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+
+      - name: Combine Disks(合并磁盘)
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 2048
+          temp-reserve-mb: 100
+          root-reserve-mb: 2048
+
+      - name: Checkout Projects(拉取云编译仓库脚本)
+        uses: actions/checkout@v4
+
+      - name: Check Scripts(统一执行权限)
+        shell: bash
+        run: |
+          set -e
+          find . -maxdepth 3 -type f \( -iname "*.txt" -o -iname "*.sh" \) \
+            -exec sh -c 'for f; do dos2unix "$f" || true; chmod +x "$f" || true; done' sh {} +
+          chmod +x "$GITHUB_WORKSPACE/Scripts/"*.sh || true
+
+      - name: Initialization Values(初始化变量)
+        run: |
+          echo "WRT_DATE=$(TZ=UTC-8 date +'%y.%m.%d-%H.%M.%S')" >> $GITHUB_ENV
+          echo "WRT_MARK=${GITHUB_REPOSITORY%%/*}" >> $GITHUB_ENV
+          echo "WRT_INFO=${WRT_SOURCE%%/*}" >> $GITHUB_ENV
+          echo "WRT_KVER=none" >> $GITHUB_ENV
+          echo "WRT_LIST=none" >> $GITHUB_ENV
+          sudo mkdir -p "$OPENWRT_PATH/build_wrt"
+          sudo chown "$USER:$USER" "$OPENWRT_PATH/build_wrt"
+          ln -s "$OPENWRT_PATH/build_wrt" "$GITHUB_WORKSPACE/wrt" || true
+
+      - name: Clone Code(拉取固件源码)
+        shell: bash
+        run: |
+          set -e
+          git clone --depth=1 --single-branch --branch "$WRT_BRANCH" "$WRT_REPO" ./wrt/
+          cd ./wrt/
+          echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+          PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
+          if [ -f "$PROJECT_MIRRORS_FILE" ]; then
+            awk '!/\.cn\/|tencent|aliyun/' "$PROJECT_MIRRORS_FILE" > "$PROJECT_MIRRORS_FILE.tmp" && mv -f "$PROJECT_MIRRORS_FILE.tmp" "$PROJECT_MIRRORS_FILE"
+          fi
+
+      - name: Prepare authenticated GitHub clone(配置认证克隆，仅用于下载)
+        run: |
+          git config --global url."https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git config --global http.lowSpeedLimit 1
+          git config --global http.lowSpeedTime 600
+
+      - name: Update Feeds(更新软件包源)
+        shell: bash
+        run: |
+          set -e
+          cd ./wrt/
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          # 避免后续 LLVM/Rust cmake 报 embedded password
+          git config --global --unset-all url."https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/".insteadOf || true
+
+      - name: Custom Packages(自定义软件包)
+        shell: bash
+        run: |
+          set -e
+          cd ./wrt/
+          if [[ "${WRT_CONFIG,,}" == *"small"* || "${WRT_CONFIG,,}" == *"samll"* ]]; then
+            echo ">> Detected SMALL config, using Packages_small.sh"
+            bash "$GITHUB_WORKSPACE/Scripts/Packages_small.sh"
+          else
+            echo ">> Using standard Packages.sh"
+            bash "$GITHUB_WORKSPACE/Scripts/Packages.sh"
+          fi
+          cd ./package/ && bash "$GITHUB_WORKSPACE/Scripts/Handles.sh"
+
+      - name: Custom Settings(自定义设置)
+        shell: bash
+        run: |
+          set -e
+          cd ./wrt/
+          if [[ "${WRT_CONFIG,,}" == *"test"* || "${WRT_CONFIG,,}" == *"small"* || "${WRT_CONFIG,,}" == *"samll"* ]]; then
+            cat "$GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt" >> .config
+          else
+            cat "$GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt" "$GITHUB_WORKSPACE/Config/GENERAL.txt" >> .config
+          fi
+          chmod +x "$GITHUB_WORKSPACE/Scripts/Settings.sh"
+          dos2unix "$GITHUB_WORKSPACE/Scripts/Settings.sh" || true
+          "$GITHUB_WORKSPACE/Scripts/Settings.sh"
+          if [ -f "$GITHUB_WORKSPACE/Scripts/Settings_homeproxy_singbox_append.sh" ]; then
+            chmod +x "$GITHUB_WORKSPACE/Scripts/Settings_homeproxy_singbox_append.sh"
+            dos2unix "$GITHUB_WORKSPACE/Scripts/Settings_homeproxy_singbox_append.sh" || true
+            "$GITHUB_WORKSPACE/Scripts/Settings_homeproxy_singbox_append.sh"
+          fi
+          if [ -n "${WRT_PACKAGE}" ]; then
+            printf "%s\n" "${WRT_PACKAGE}" >> .config
+          fi
+          echo "WRT_TARGET=$(grep -m1 -oP '^CONFIG_TARGET_\\K[\\w]+' .config | head -n1 || true)" >> $GITHUB_ENV
+          make defconfig -j"$(nproc)"
+          make clean -j"$(nproc)"
+
+      - name: Download Packages(下载依赖)
+        if: env.WRT_TEST != 'true'
+        run: cd ./wrt/ && make download -j"$(nproc)"
+
+      - name: Compile Firmware(编译固件并保存日志)
+        if: env.WRT_TEST != 'true'
+        shell: bash
+        run: |
+          set +e
+          cd ./wrt/
+          mkdir -p ../_logs
+          if [[ "${WRT_CONFIG,,}" == *"small"* || "${WRT_CONFIG,,}" == *"samll"* ]]; then
+            ( make -j"$(nproc)" 2>&1 | tee ../_logs/build_${WRT_CONFIG}.log ) || \
+            ( make -j"$(nproc)" V=s 2>&1 | tee -a ../_logs/build_${WRT_CONFIG}.log )
+          else
+            ( make -j"$(nproc)" 2>&1 | tee ../_logs/build_${WRT_CONFIG}.log ) || \
+            ( echo "==== parallel build failed; retry serial with verbose ====" | tee -a ../_logs/build_${WRT_CONFIG}.log; \
+              make -j1 V=s 2>&1 | tee -a ../_logs/build_${WRT_CONFIG}.log )
+          fi
+
+      - name: Package Firmware(打包固件，打印失败原因)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd ./wrt/
+          mkdir -p ./upload/
+          cp -f ./.config "./upload/Config-${WRT_CONFIG}-${WRT_INFO}-${WRT_BRANCH}-${WRT_DATE}.txt" || true
+
+          echo "== 列出 targets 目录结构 =="
+          if [ -d "./bin/targets" ]; then
+            find ./bin/targets -maxdepth 4 -type f -printf "%y %p\n" || true
+          else
+            echo "ERROR: ./bin/targets 不存在，说明编译没有产物"
+            exit 1
+          fi
+
+          # 兜底 WRT_TARGET
+          if [ -z "${WRT_TARGET}" ] || [ "${WRT_TARGET}" = " " ]; then
+            GUESS="$(find ./bin/targets -mindepth 2 -maxdepth 2 -type d -printf "%P\n" 2>/dev/null | head -n1 | cut -d'/' -f1)"
+            [ -n "$GUESS" ] && echo "WRT_TARGET=$GUESS" >> $GITHUB_ENV
+          fi
+
+          # —— 采集展示信息（KVER/LIST/NSS）——
+          KVER="$(grep -h -oP '^kernel - \K[\d.]+' ./bin/targets/*/*/*.manifest 2>/dev/null | head -n1 || true)"
+          LIST="$(grep -h -oP '^luci-(app|theme)[^ ]*' ./bin/targets/*/*/*.manifest 2>/dev/null | tr '\n' ' ' || true)"
+
+          # 1) 首选：从 .config 读取 CONFIG_NSS_FIRMWARE_VERSION_XX_X
+          if grep -qE '^CONFIG_NSS_FIRMWARE_VERSION_' .config 2>/dev/null; then
+            NSS="$(grep -oP '^CONFIG_NSS_FIRMWARE_VERSION_\K[\d_]+' .config 2>/dev/null | sed 's/_/./g' | head -n1)"
+          fi
+
+          # 2) 次选：从 manifest 推断（有些树不会写出版本，取不到就跳过）
+          if [ -z "${NSS:-}" ]; then
+            NSS="$(grep -h -i -oE 'qca-nss-(drv|ecm|cfi|clients)[^ ]*' ./bin/targets/*/*/*.manifest 2>/dev/null | head -n1 | \
+                   sed -n 's/.*nss[^0-9]*\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/p')"
+          fi
+
+          # 3) 兜底：按平台/机型推断（qualcommax: ipq50xx→12.2，其它→12.5）
+          if [ -z "${NSS:-}" ]; then
+            CFG_LC="$(tr '[:upper:]' '[:lower:]' < .config)"
+            if echo "$CFG_LC" | grep -q 'config_target_qualcommax'; then
+              if echo "$CFG_LC" | grep -q 'ipq50'; then
+                NSS="12.2"
+              else
+                NSS="12.5"
+              fi
+            fi
+          fi
+
+          {
+            [ -n "$KVER" ] && echo "WRT_KVER=$KVER"
+            [ -n "$LIST" ] && echo "WRT_LIST=$LIST"
+            [ -n "$NSS"  ] && echo "NSS_FIRMWARE_VERSION=$NSS"
+          } >> "$GITHUB_ENV"
+
+          # 清理无用文件
+          find ./bin/targets/ -iregex '.*\(buildinfo\|json\|sha256sums\|packages\)$' -exec rm -rf {} + || true
+
+          # 重命名并搬运
+          TARGET_GLOB="*${WRT_TARGET:-}*"
+          MOVED=0
+          while IFS= read -r -d '' FILE; do
+            BASENAME="$(basename "$FILE")"
+            EXT="${BASENAME#*.}"
+            NAME="${BASENAME%%.*}"
+            if [ -n "${WRT_TARGET:-}" ] && echo "$NAME" | grep -qiE "(${WRT_TARGET})"; then
+              NAME="$(echo "$NAME" | grep -ioE "(${WRT_TARGET}).*")"
+            fi
+            NEW_FILE="${WRT_INFO}-${WRT_BRANCH}-${NAME}-${WRT_DATE}.${EXT}"
+            mv -f "$FILE" "./upload/$NEW_FILE" || true
+            ((MOVED++)) || true
+          done < <(find ./bin/targets/ -type f -iname "$TARGET_GLOB" -print0 2>/dev/null)
+
+          # 兜底搬运
+          if [ "$MOVED" -eq 0 ]; then
+            echo "WARN: 按 TARGET_GLOB 未匹配到文件，尝试整体搬运……"
+            find ./bin/targets/ -type f -print0 2>/dev/null | xargs -0 -I{} mv -f "{}" ./upload/ || true
+          fi
+
+          # 打印上传目录清单并做强检查
+          echo "== upload 目录清单 =="
+          ls -lah ./upload/ || true
+          COUNT=$(find ./upload -type f | wc -l | xargs)
+          if [ "$COUNT" -eq 0 ]; then
+            echo "ERROR: 打包阶段没有任何固件文件被搬运到 ./upload/"
+            echo "== 最近 2000 行编译日志 =="
+            tail -n 2000 ../_logs/build_${WRT_CONFIG}.log || true
+            exit 1
+          fi
+
+          # 发布页 ENV 确认
+          echo "== 发布页 ENV 确认 =="
+          echo "WRT_KVER=${KVER:-<empty>}"
+          echo "WRT_LIST=${LIST:-<empty>}"
+          echo "NSS_FIRMWARE_VERSION=${NSS:-<empty>}"
+
+          export LDFLAGS="-fuse-ld=lld"
+          make clean -j"$(nproc)" || true
+
+      - name: Upload logs & targets on failure (失败时上传日志与产物)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-and-targets-${{ env.WRT_CONFIG }}-${{ env.WRT_DATE }}
+          path: |
+            _logs/**
+            wrt/bin/targets/**
+
+      - name: Release Firmware(发布固件)
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ env.WRT_CONFIG }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
+          files: ./wrt/upload/*.*
+          overwrite: true
+          draft: false
+          prerelease: false
+          make_latest: true
+          body: |
+            这是个平台固件包，内含多个设备！
+            请注意选择你需要的设备固件！
+            不要问，刷就完事了！
+
+            全系带开源硬件加速，别问了！
+
+            源码：${{ env.WRT_REPO }}
+            分支：${{ env.WRT_BRANCH }}
+            提交：${{ env.WRT_HASH }}
+
+            配置：${{ env.WRT_CONFIG }}
+            平台：${{ env.WRT_TARGET }}
+
+            登录地址：${{ env.WRT_IP }}
+            登录密码：${{ env.WRT_PW }}
+
+            WIFI名称：${{ env.WRT_SSID }}
+            WIFI密码：${{ env.WRT_WORD }}
+
+            NSS版本：${{ env.NSS_FIRMWARE_VERSION }}
+
+            内核版本：${{ env.WRT_KVER }}
+            插件列表：${{ env.WRT_LIST }}

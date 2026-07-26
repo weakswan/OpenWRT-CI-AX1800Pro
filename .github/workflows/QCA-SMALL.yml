@@ -1,0 +1,56 @@
+# 小内存机型（SMALL）入口（与大内存版写法对齐）
+name: QCA-SMALL
+
+on:
+  # 定时（UTC）；可按需调整或删除
+  schedule:
+    - cron: 0 22 * * *
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      PACKAGE:
+        description: '手动追加 .config 条目，多条用换行分隔'
+        required: false
+        type: string
+      TEST:
+        description: '仅输出配置文件，不编译固件'
+        default: 'false'
+        required: false
+        type: boolean
+
+# 需要发布 release，所以给写权限
+permissions: write-all
+
+jobs:
+  config:
+    name: ${{ matrix.CONFIG }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # —— 精确使用你仓库下存在的两个 SMALL 配置文件名 —— 
+        CONFIG: [IPQ60XX-SMALL-WIFI-YES, IPQ60XX-SMALL-WIFI-NO]
+        SOURCE: [VIKINGYFY/immortalwrt]
+        BRANCH: [main]
+
+    # 复用同仓库里的核心编译工作流
+    uses: ./.github/workflows/WRT-CORE.yml
+    secrets: inherit
+    with:
+      # 编译配置
+      WRT_CONFIG:  ${{ matrix.CONFIG }}
+      # 默认主题/主机名/WiFi
+      WRT_THEME:   argon
+      WRT_NAME:    OWRT
+      WRT_SSID:    OWRT
+      WRT_WORD:    12345678
+      # 默认管理地址与“提示用”的密码
+      WRT_IP:      192.168.1.1
+      WRT_PW:      无
+      # 源码与分支
+      WRT_REPO:    https://github.com/${{ matrix.SOURCE }}.git
+      WRT_BRANCH:  ${{ matrix.BRANCH }}
+      WRT_SOURCE:  ${{ matrix.SOURCE }}
+      # 额外 .config 片段（可留空）
+      WRT_PACKAGE: ${{ inputs.PACKAGE }}
+      # 仅导出配置不编译
+      WRT_TEST:    ${{ inputs.TEST }}

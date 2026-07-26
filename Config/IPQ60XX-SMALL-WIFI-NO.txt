@@ -1,0 +1,232 @@
+# 目标平台
+CONFIG_TARGET_qualcommax=y
+CONFIG_TARGET_qualcommax_ipq60xx=y
+
+# 仅编译这两台：cmiot_ax18 / zn_m2
+CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_cmiot_ax18=y
+CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_zn_m2=y
+CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_jdcloud_re-ss-01=y
+
+# WIFI-NO 版：关闭 11ax / 无线套件
+CONFIG_PACKAGE_kmod-ath11k=n
+CONFIG_PACKAGE_kmod-ath11k-ahb=n
+CONFIG_PACKAGE_kmod-ath11k-pci=n
+CONFIG_PACKAGE_ath11k-firmware-ipq6018=n
+CONFIG_PACKAGE_ath11k-firmware-qcn9074=n
+CONFIG_PACKAGE_wpad-openssl=n
+CONFIG_PACKAGE_wpad-basic-mbedtls=n
+CONFIG_PACKAGE_hostapd-common=n
+CONFIG_PACKAGE_wireless-regdb=n
+CONFIG_PACKAGE_iw=n
+CONFIG_PACKAGE_iwinfo=n
+
+# 科学环境（你的要求）
+CONFIG_PACKAGE_luci-app-homeproxy=n
+CONFIG_PACKAGE_luci-app-momo=y
+CONFIG_PACKAGE_luci-app-nikki=y
+CONFIG_PACKAGE_sing-box=y
+
+# 常用工具与依赖（必要集）
+CONFIG_PACKAGE_curl=y
+CONFIG_PACKAGE_kmod-tun=y
+CONFIG_PACKAGE_kmod-inet-diag=y
+CONFIG_PACKAGE_openssh-sftp-server=y
+
+# LuCI 常用
+CONFIG_PACKAGE_luci-base=y
+CONFIG_PACKAGE_luci-compat=y
+CONFIG_PACKAGE_luci-lib-base=y
+CONFIG_PACKAGE_luci-lib-ipkg=y
+CONFIG_PACKAGE_luci-lua-runtime=y
+CONFIG_PACKAGE_luci-proto-bonding=y
+CONFIG_PACKAGE_luci-proto-relay=y
+
+# LuCI 插件（轻量实用）
+CONFIG_PACKAGE_luci-app-autoreboot=y
+CONFIG_PACKAGE_luci-app-gecoosac=y
+CONFIG_PACKAGE_luci-app-netspeedtest=y
+CONFIG_PACKAGE_luci-app-partexp=y
+CONFIG_PACKAGE_luci-app-samba4=n
+CONFIG_PACKAGE_luci-app-tailscale=y
+CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_luci-app-wolplus=y
+CONFIG_PACKAGE_luci-app-wol=n
+CONFIG_PACKAGE_luci-app-openlist2=y
+
+# 构建参数
+CONFIG_CCACHE=y
+CONFIG_DEVEL=y
+CONFIG_TARGET_MULTI_PROFILE=y
+CONFIG_TARGET_PER_DEVICE_ROOTFS=y
+CONFIG_TARGET_ROOTFS_INITRAMFS=n
+
+# 内核/kmod：网络/NFT（只保留必需）
+CONFIG_PACKAGE_kmod-dsa=y
+CONFIG_PACKAGE_kmod-fs-btrfs=n
+CONFIG_PACKAGE_kmod-fuse=n
+CONFIG_PACKAGE_kmod-mtd-rw=n
+CONFIG_PACKAGE_kmod-netlink-diag=y
+CONFIG_PACKAGE_kmod-nft-bridge=y
+CONFIG_PACKAGE_kmod-nft-core=y
+CONFIG_PACKAGE_kmod-nft-fullcone=y
+CONFIG_PACKAGE_kmod-nft-nat=y
+CONFIG_PACKAGE_kmod-nft-netdev=y
+CONFIG_PACKAGE_kmod-nft-offload=y
+CONFIG_PACKAGE_kmod-nft-tproxy=y
+# 可关的 nft 子模块（省空间）
+CONFIG_PACKAGE_kmod-nft-queue=n
+CONFIG_PACKAGE_kmod-nft-socket=n
+CONFIG_PACKAGE_kmod-nft-fib=n
+
+# USB 与存储/网卡（保留最常用）
+CONFIG_PACKAGE_kmod-usb3=y
+CONFIG_PACKAGE_kmod-usb-core=y
+CONFIG_PACKAGE_kmod-usb-dwc3=y
+CONFIG_PACKAGE_kmod-usb-xhci=y
+CONFIG_PACKAGE_kmod-usb-storage=y
+CONFIG_PACKAGE_kmod-usb-storage-extras=n
+CONFIG_PACKAGE_kmod-usb-storage-uas=n
+CONFIG_PACKAGE_kmod-usb-ohci=n
+CONFIG_PACKAGE_kmod-usb-uhci=n
+
+# USB 网卡（按需：只留最常见 8152；不用可关）
+CONFIG_PACKAGE_kmod-usb-net=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8152=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8150=n
+CONFIG_PACKAGE_kmod-usb-net-cdc-eem=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ether=n
+CONFIG_PACKAGE_kmod-usb-net-cdc-mbim=n
+CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-subset=n
+CONFIG_PACKAGE_kmod-usb-net-huawei-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-ipheth=n
+CONFIG_PACKAGE_kmod-usb-net-qmi-wwan=n
+CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-fibocom=n
+CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-quectel=n
+CONFIG_PACKAGE_kmod-usb-net-rndis=y
+
+# VPN/加速
+CONFIG_PACKAGE_kmod-wireguard=y
+
+# 常用命令行工具（按需）
+CONFIG_PACKAGE_iperf3=n
+CONFIG_PACKAGE_ip-full=y
+CONFIG_PACKAGE_lsblk=n
+CONFIG_PACKAGE_mmc-utils=n
+CONFIG_PACKAGE_nand-utils=n
+CONFIG_PACKAGE_openssh-keygen=n
+CONFIG_PACKAGE_openssl-util=y
+CONFIG_PACKAGE_sfdisk=n
+CONFIG_PACKAGE_sgdisk=n
+CONFIG_PACKAGE_usbutils=n
+
+# Kernel 能力（SMALL 不跑容器→全部关闭更省）
+CONFIG_KERNEL_CGROUPS=n
+CONFIG_KERNEL_CGROUP_PIDS=n
+CONFIG_KERNEL_MEMCG=n
+CONFIG_KERNEL_NAMESPACES=n
+CONFIG_KERNEL_USER_NS=n
+CONFIG_KERNEL_SECCOMP=n
+CONFIG_KERNEL_SECCOMP_FILTER=n
+CONFIG_KERNEL_KEYS=n
+
+# —— LuCI 协议插件：不用就关 —— 
+CONFIG_PACKAGE_luci-proto-bonding=n
+CONFIG_PACKAGE_luci-proto-relay=n
+# NSS SQM: enable on SMALL builds
+CONFIG_PACKAGE_luci-app-sqm=y
+CONFIG_PACKAGE_sqm-scripts-nss=y
+CONFIG_PACKAGE_sqm-scripts=n
+
+
+
+
+
+# IPQ60XX-SMALL-WIFI-NO - 基础裁剪版 + USB 常用能力
+# （该文件只展示新增/确保启用的条目，其他保持你原有配置不变）
+
+# ===== SMALL 自动回补常用 USB/存储/串口/网卡 能力 =====
+# USB Host 控制器
+CONFIG_PACKAGE_kmod-usb-core=y
+CONFIG_PACKAGE_kmod-usb2=y
+CONFIG_PACKAGE_kmod-usb3=y
+CONFIG_PACKAGE_kmod-usb-ohci=y
+CONFIG_PACKAGE_kmod-usb-ehci=y
+CONFIG_PACKAGE_kmod-usb-ohci-pci=y
+CONFIG_PACKAGE_kmod-usb-ehci-pci=y
+CONFIG_PACKAGE_kmod-usb-xhci-hcd=y
+CONFIG_PACKAGE_kmod-usb-xhci-pci=y
+
+# USB 网络：RNDIS/CDC/常见适配器
+CONFIG_PACKAGE_kmod-usb-net=y
+CONFIG_PACKAGE_kmod-usb-net-rndis=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-mbim=y
+CONFIG_PACKAGE_kmod-usb-net-asix=y
+CONFIG_PACKAGE_kmod-usb-net-asix-ax88179=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8152=y
+
+# USB 串口（含 4G/5G 模块）
+CONFIG_PACKAGE_kmod-usb-serial=y
+CONFIG_PACKAGE_kmod-usb-serial-ftdi=y
+CONFIG_PACKAGE_kmod-usb-serial-ch341=y
+CONFIG_PACKAGE_kmod-usb-serial-cp210x=y
+CONFIG_PACKAGE_kmod-usb-serial-option=y
+CONFIG_PACKAGE_kmod-usb-net-wwan=y
+
+# 存储与文件系统
+CONFIG_PACKAGE_kmod-usb-storage=y
+CONFIG_PACKAGE_kmod-usb-storage-extras=y
+CONFIG_PACKAGE_kmod-usb-storage-uas=y
+CONFIG_PACKAGE_block-mount=y
+CONFIG_PACKAGE_e2fsprogs=y
+CONFIG_PACKAGE_kmod-fs-ext4=y
+CONFIG_PACKAGE_kmod-fs-vfat=y
+CONFIG_PACKAGE_kmod-fs-exfat=y
+CONFIG_PACKAGE_kmod-fs-ntfs=y
+
+# 编码（挂载 U 盘常见编码）
+CONFIG_PACKAGE_kmod-nls-base=y
+CONFIG_PACKAGE_kmod-nls-cp437=y
+CONFIG_PACKAGE_kmod-nls-iso8859-1=y
+CONFIG_PACKAGE_kmod-nls-utf8=y
+
+# 工具
+CONFIG_PACKAGE_usbutils=y
+CONFIG_PACKAGE_usb-modeswitch=y
+
+##### USB/NCM/RNDIS 栈（OpenWrt 选项）#########################################
+# —— 内核：通用 USB 网卡 & 各协议内核模块 ——
+CONFIG_PACKAGE_kmod-usb-net=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
+CONFIG_PACKAGE_kmod-usb-net-rndis=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-huawei-cdc-ncm=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-mbim=y
+
+# —— LuCI 协议插件（NCM 必备 UI），以及拨号脚本（NCM 必需） ——
+CONFIG_PACKAGE_luci-proto-ncm=y
+CONFIG_PACKAGE_comgt-ncm=y
+
+# —— 可选：若打算用 MBIM 也建议带上（UI 插件与工具）——
+CONFIG_PACKAGE_luci-proto-mbim=y
+CONFIG_PACKAGE_umbim=y
+
+# —— 可选：若设备需要 QMI（高通系常见）——
+CONFIG_PACKAGE_luci-proto-qmi=y
+CONFIG_PACKAGE_uqmi=y
+
+# —— 设备模式切换 & USB 工具（很多 4G/5G 上网卡需要从“光驱模式”切换到网卡）——
+CONFIG_PACKAGE_usb-modeswitch=y
+CONFIG_PACKAGE_usbutils=y
+
+# —— 常见 USB 串口驱动（某些棒子需要 /dev/ttyUSB* 才能初始化/切网）——
+CONFIG_PACKAGE_kmod-usb-serial=y
+CONFIG_PACKAGE_kmod-usb-serial-wwan=y
+CONFIG_PACKAGE_kmod-usb-serial-option=y
+CONFIG_PACKAGE_kmod-usb-serial-cp210x=y
+CONFIG_PACKAGE_kmod-usb-serial-ch341=y
+CONFIG_PACKAGE_kmod-usb-serial-ftdi=y
+###############################################################################
+

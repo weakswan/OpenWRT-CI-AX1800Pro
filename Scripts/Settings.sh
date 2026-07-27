@@ -79,8 +79,6 @@ CONFIG_PACKAGE_btop=y
 CONFIG_PACKAGE_curl=y
 CONFIG_PACKAGE_tcping=y
 CONFIG_PACKAGE_cfdisk=y
-CONFIG_PACKAGE_luci-app-podman=y
-CONFIG_PACKAGE_podman=y
 CONFIG_PACKAGE_zoneinfo-asia=y
 CONFIG_PACKAGE_bind-dig=y
 CONFIG_PACKAGE_ss=y
@@ -146,47 +144,6 @@ case "${WRT_CONFIG,,}" in
     ;;
 esac
 
-# ---------- Podman 运行最优配置（非 SMALL） ----------
-case "${WRT_CONFIG,,}" in
-  *small*|*samll*)
-    echo ">> SMALL build: skip heavy Podman stack auto-enable"
-    ;;
-  *)
-    echo ">> Enable full Podman stack (packages + kernel features)"
-    cat >> ./.config << 'EOF_POD_PKGS'
-CONFIG_PACKAGE_luci-app-podman=y
-CONFIG_PACKAGE_podman=y
-CONFIG_PACKAGE_conmon=y
-CONFIG_PACKAGE_crun=y
-CONFIG_PACKAGE_catatonit=y
-CONFIG_PACKAGE_slirp4netns=y
-CONFIG_PACKAGE_fuse-overlayfs=y
-CONFIG_PACKAGE_uidmap=y
-CONFIG_PACKAGE_netavark=y
-CONFIG_PACKAGE_aardvark-dns=y
-CONFIG_PACKAGE_containers-storage=y
-CONFIG_PACKAGE_podman-compose=y
-EOF_POD_PKGS
-
-    cat >> ./.config << 'EOF_POD_KCFG'
-CONFIG_KERNEL_CGROUPS=y
-CONFIG_KERNEL_CGROUP_PIDS=y
-CONFIG_KERNEL_MEMCG=y
-CONFIG_KERNEL_NAMESPACES=y
-CONFIG_KERNEL_USER_NS=y
-CONFIG_KERNEL_SECCOMP=y
-CONFIG_KERNEL_SECCOMP_FILTER=y
-CONFIG_KERNEL_KEYS=y
-EOF_POD_KCFG
-
-    mkdir -p ./files/etc/containers ./files/root/.config/containers ./files/root/.local/share/containers
-    mkdir -p ./files/etc/sysctl.d
-    cat > ./files/etc/sysctl.d/99-podman.conf << 'EOF_SYSCTL'
-net.ipv4.ip_forward=1
-net.ipv6.conf.all.forwarding=1
-EOF_SYSCTL
-    ;;
-esac
 
 # ---------- USB 随身网卡支持（大小内存均启用，SMALL 为轻量集） ----------
 if [[ "${WRT_CONFIG,,}" == *"small"* || "${WRT_CONFIG,,}" == *"samll"* ]]; then

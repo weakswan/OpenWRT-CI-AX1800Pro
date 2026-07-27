@@ -53,49 +53,11 @@ have_makefile() {
 
 # -------- Your third-party sources (容错) --------
 
-# kenzok8/small-package
-safe_sparse_clone main https://github.com/kenzok8/small-package \
-  daed-next luci-app-daed-next \
-  gost luci-app-gost \
-  luci-app-nginx \
-  luci-app-adguardhome
 
-if [ ! -d "${PKGDIR}/luci-app-nginx" ]; then
-  echo ">> luci-app-nginx not found via sparse checkout; skipping (may be removed upstream)"
-fi
-
-# kiddin9/kwrt-packages
-safe_sparse_clone main https://github.com/kiddin9/kwrt-packages \
-  natter2 luci-app-natter2 \
-  luci-app-cloudflarespeedtest \
-  luci-app-caddy openwrt-caddy
 
 # Podman（breeze303）
 safe_clone_into_package https://github.com/breeze303/openwrt-podman podman
 
-# Lucky（UI + core），如 feeds 未提供则 vendor
-if ! have_makefile "*/lucky/Makefile"; then
-  safe_clone_into_package https://github.com/sirpdboy/lucky lucky
-fi
-if ! have_makefile "*/luci-app-lucky/Makefile"; then
-  safe_clone_into_package https://github.com/sirpdboy/luci-app-lucky luci-app-lucky
-fi
-
-# -------- momo / nikki / tailscale / sing-box（缺则补，保证 Settings.sh 写 =y 时有源码） --------
-# 说明：无论大小内存，只要你在 Settings.sh 里启用，这里保证源码存在；避免“启用但缺包”的构建失败
-if ! have_makefile "*/luci-app-momo/Makefile"; then
-  safe_clone_into_package https://github.com/nikkinikki-org/OpenWrt-momo luci-app-momo
-fi
-if ! have_makefile "*/luci-app-nikki/Makefile"; then
-  safe_clone_into_package https://github.com/nikkinikki-org/OpenWrt-nikki luci-app-nikki
-fi
-if ! have_makefile "*/luci-app-tailscale/Makefile"; then
-  safe_clone_into_package https://github.com/asvow/luci-app-tailscale luci-app-tailscale
-fi
-# sing-box：homeproxy 常依赖，若 feeds 中无则 vendor
-if ! have_makefile "*/sing-box/Makefile"; then
-  safe_clone_into_package https://github.com/sbwml/sing-box sing-box
-fi
 
 # -------- SMALL_FALLBACK 兼容（当 Packages_small.sh 缺失时由工作流触发） --------
 if [ "${SMALL_FALLBACK:-0}" = "1" ]; then

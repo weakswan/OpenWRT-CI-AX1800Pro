@@ -19,8 +19,6 @@ fi
 {
   echo "CONFIG_PACKAGE_luci=y"
   echo "CONFIG_LUCI_LANG_zh_Hans=y"
-  echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y"
-  echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y"
   echo "CONFIG_PACKAGE_luci-theme-bootstrap=y"
 } >> ./.config
 
@@ -78,28 +76,14 @@ CONFIG_PACKAGE_jq=y
 CONFIG_PACKAGE_coreutils-base64=y
 CONFIG_PACKAGE_coreutils=y
 CONFIG_PACKAGE_btop=y
-CONFIG_PACKAGE_luci-app-openlist2=y
-CONFIG_PACKAGE_luci-app-lucky=y
-CONFIG_PACKAGE_lucky=y
 CONFIG_PACKAGE_curl=y
 CONFIG_PACKAGE_tcping=y
 CONFIG_PACKAGE_cfdisk=y
 CONFIG_PACKAGE_luci-app-podman=y
 CONFIG_PACKAGE_podman=y
-CONFIG_PACKAGE_luci-app-caddy=y
-CONFIG_PACKAGE_luci-app-filemanager=y
-CONFIG_PACKAGE_luci-app-gost=y
-CONFIG_PACKAGE_git-http=y
-CONFIG_PACKAGE_luci-app-nginx=y
-CONFIG_PACKAGE_luci-app-adguardhome=y
 CONFIG_PACKAGE_zoneinfo-asia=y
 CONFIG_PACKAGE_bind-dig=y
 CONFIG_PACKAGE_ss=y
-CONFIG_PACKAGE_luci-app-turboacc=y
-CONFIG_PACKAGE_luci-app-package-manager=y
-# tailscale（大小内存均会在下方启用；此处为大内存默认）
-CONFIG_PACKAGE_luci-app-tailscale=y
-CONFIG_PACKAGE_tailscale=y
 EOF_TOOLS
 
 # ---------- SMALL 体积保护 + 白名单 ----------
@@ -109,10 +93,6 @@ case "${WRT_CONFIG,,}" in
 
     # SMALL：仍启用 momo / nikki / sing-box（homeproxy ~ 可选）
     cat >> ./.config << 'EOF_SM_MIN'
-CONFIG_PACKAGE_luci-app-homeproxy=n
-CONFIG_PACKAGE_luci-app-momo=y
-CONFIG_PACKAGE_luci-app-nikki=y
-CONFIG_PACKAGE_sing-box=y
 EOF_SM_MIN
 
     # SMALL：常见轻量 LuCI 白名单 + tailscale（你要求两类都集成）
@@ -123,10 +103,6 @@ CONFIG_PACKAGE_luci-app-netspeedtest=y
 CONFIG_PACKAGE_luci-app-partexp=y
 CONFIG_PACKAGE_luci-app-upnp=y
 CONFIG_PACKAGE_luci-app-wolplus=y
-CONFIG_PACKAGE_luci-app-adguardhome=y
-CONFIG_PACKAGE_adguardhome=y
-CONFIG_PACKAGE_luci-app-tailscale=y
-CONFIG_PACKAGE_tailscale=y
 EOF_SM_WHITE
 
     # SMALL：显式关闭重包/重依赖
@@ -237,11 +213,6 @@ CONFIG_PACKAGE_usb-modeswitch=y
 EOF_USB_BIG
 fi
 
-# ---------- 显式开启 momo / nikki（非 SMALL） ----------
-if [[ "${WRT_CONFIG,,}" != *"small"* && "${WRT_CONFIG,,}" != *"samll"* ]]; then
-  echo "CONFIG_PACKAGE_luci-app-momo=y"  >> ./.config
-  echo "CONFIG_PACKAGE_luci-app-nikki=y" >> ./.config
-fi
 
 # ---------- 存在性检查：缺包自动置 n（避免编译失败） ----------
 check_or_disable() {

@@ -54,11 +54,6 @@ have_makefile() {
 # -------- Your third-party sources (容错) --------
 
 
-
-# Podman（breeze303）
-safe_clone_into_package https://github.com/breeze303/openwrt-podman podman
-
-
 # -------- SMALL_FALLBACK 兼容（当 Packages_small.sh 缺失时由工作流触发） --------
 if [ "${SMALL_FALLBACK:-0}" = "1" ]; then
   echo ">> SMALL_FALLBACK enabled: ensured momo/nikki/tailscale/sing-box are vendored (done above)"
